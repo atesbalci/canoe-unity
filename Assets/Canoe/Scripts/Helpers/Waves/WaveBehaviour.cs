@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -76,6 +77,7 @@ namespace Canoe.Helpers.Waves
             return mesh;
         }
         
+        [BurstCompile]
         private struct WaveJob : IJobParallelFor
         {
             public float Gap;
