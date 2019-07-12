@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Canoe/Scenes/TestScene.unity
+    guid: 78d8c2c4d58e44731a79b5adc2b840de
   m_configObjects: {}
