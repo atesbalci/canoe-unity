@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.Events;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -9,48 +10,70 @@ namespace Framework.Scripts.Managers.WebSocketServer
 {
     public class WebSocketServerManager : BaseManager
     {
+        public UnityAction OnPlayerConnect;
+        public UnityAction OnPlayerDisconnect;
+        public UnityAction OnErrorOccur;
+        public UnityAction<String> OnMessageReceive;
+
+        public int port = 81;
+
         private WebSocketSharp.Server.WebSocketServer _wsServer;
-        
+
         protected override void Awake()
         {
             base.Awake();
 
             GetLocalIPAddress();
-//            Debug.Log(networkAddress);
-            
-            _wsServer = new WebSocketSharp.Server.WebSocketServer("ws://0.0.0.0:9999");
-            _wsServer.AddWebSocketService<Game>("/game");
-            _wsServer.Start();
+
+            InitializeServer();
         }
 
-        private class Game : WebSocketBehavior
+        private void InitializeServer()
         {
+            _wsServer = new WebSocketSharp.Server.WebSocketServer($"ws://0.0.0.0:{port}");
+            _wsServer.AddWebSocketService("/", () => new GameServer(this));
+        }
+
+        public void Start()
+        {
+            _wsServer?.Start();
+        }
+
+        public void Stop()
+        {
+            _wsServer?.Stop();
+        }
+
+        private class GameServer : WebSocketBehavior
+        {
+            private readonly WebSocketServerManager _manager;
+
+            public GameServer(WebSocketServerManager manager)
+            {
+                _manager = manager;
+            }
+
             protected override void OnOpen()
             {
-                Debug.Log("OnOpen: " + ID);
+                _manager.OnPlayerConnect?.Invoke();
             }
 
             protected override void OnClose(CloseEventArgs e)
             {
-                Debug.Log("OnClose: " + ID);
+                _manager.OnPlayerDisconnect?.Invoke();
             }
 
             protected override void OnError(ErrorEventArgs e)
             {
-                Debug.Log(e.Message);
+                _manager.OnErrorOccur?.Invoke();
             }
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                Debug.Log(e.Data);
+                _manager.OnMessageReceive?.Invoke(e.Data);
             }
         }
 
-        private void OnDestroy()
-        {
-            _wsServer.Stop();
-        }
-        
         public void GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -59,7 +82,6 @@ namespace Framework.Scripts.Managers.WebSocketServer
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
                     Debug.Log(ip.ToString());
-//                    return ip.ToString();
                 }
             }
         }

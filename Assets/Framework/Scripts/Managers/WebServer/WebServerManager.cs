@@ -14,7 +14,7 @@ namespace Framework.Scripts.Managers.WebServer
         public bool processRequestsInMainThread = true;
         public bool logRequests = true;
 
-        public string folderPath = "/hextris";
+        public string folderPath = "/";
 
         UniWebServer.WebServer server;
 
