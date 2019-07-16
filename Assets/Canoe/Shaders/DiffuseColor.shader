@@ -1,4 +1,4 @@
-Shader "Canoe/Sea" {
+Shader "Mobile/Diffuse Color" {
 Properties {
     _MainColor ("Color", COLOR) = (1, 1, 1, 1)
 }
@@ -16,9 +16,8 @@ struct Input {
 };
 
 void surf (Input IN, inout SurfaceOutput o) {
-    fixed4 c = _MainColor;
-    o.Albedo = c.rgb;
-    o.Alpha = c.a;
+    o.Albedo = _MainColor.rgb;
+    o.Alpha = _MainColor.a;
 }
 ENDCG
 }
