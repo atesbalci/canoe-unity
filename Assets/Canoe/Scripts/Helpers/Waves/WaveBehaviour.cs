@@ -10,8 +10,7 @@ namespace Canoe.Helpers.Waves
     public class WaveBehaviour : MonoBehaviour
     {
         [Header("Sea Parameters")]
-        public int XDimension;
-        public int YDimension;
+        public Vector2Int Dimensions;
         public float Gap;
 
         [Header("Wave Parameters")]
@@ -35,22 +34,22 @@ namespace Canoe.Helpers.Waves
 
         public void Initialize()
         {
-            _seaMesh = GenerateMesh(XDimension, YDimension, Gap);
+            _seaMesh = GenerateMesh(Dimensions, Gap);
             GetComponent<MeshFilter>().sharedMesh = _seaMesh;
             _vertices = _seaMesh.vertices.ToArray();
         }
 
-        private static Mesh GenerateMesh(int dimX, int dimY, float gap)
+        private static Mesh GenerateMesh(Vector2Int dimensions, float gap)
         {
             var mesh =  new Mesh();
-            var vertices = new Vector3[dimX * dimY * 6];
+            var vertices = new Vector3[dimensions.x * dimensions.y * 6];
             var triangles = new int[vertices.Length];
             var ind = 0;
-            for (var y = 0; y < dimY; y++)
+            for (var y = 0; y < dimensions.y; y++)
             {
-                for (var x = 0; x < dimX; x++)
+                for (var x = 0; x < dimensions.x; x++)
                 {
-                    var pos = new Vector3(x - dimX / 2f, 0, y - dimY / 2f);
+                    var pos = new Vector3(x - dimensions.x / 2f, 0, y - dimensions.y / 2f);
 
                     //Triangle 1
                     vertices[ind] = pos * gap;
@@ -90,7 +89,7 @@ namespace Canoe.Helpers.Waves
             public float NoiseSize;
             public float NoiseScale;
 
-            public float2 Size;
+            public int2 Size;
             public float Time;
 
             public NativeArray<Vector3> Vertices;
@@ -110,16 +109,13 @@ namespace Canoe.Helpers.Waves
 
         private void Update()
         {
-            float time = Time.time;
-            var size = new float2(XDimension, YDimension);
-            
             var vertices = new NativeArray<Vector3>(_vertices, Allocator.Persistent);
             var verticesCur = new NativeArray<Vector3>(_vertices.Length, Allocator.Persistent);
             
             var job = new WaveJob
             {
-                Size = size,
-                Time = time,
+                Size = new int2(Dimensions.x, Dimensions.y),
+                Time = Time.time,
                 Vertices = vertices,
                 NoiseScale = NoiseScale,
                 NoiseSize = NoiseSize,
