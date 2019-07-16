@@ -1,6 +1,6 @@
 Shader "Mobile/Diffuse Color" {
 Properties {
-    _MainColor ("Color", COLOR) = (1, 1, 1, 1)
+    _Color ("Color", COLOR) = (1, 1, 1, 1)
 }
 SubShader {
     Tags { "RenderType"="Opaque" }
@@ -9,15 +9,15 @@ SubShader {
 CGPROGRAM
 #pragma surface surf Lambert noforwardadd
 
-fixed4 _MainColor;
+fixed4 _Color;
 
 struct Input {
     float2 uv_MainTex;
 };
 
 void surf (Input IN, inout SurfaceOutput o) {
-    o.Albedo = _MainColor.rgb;
-    o.Alpha = _MainColor.a;
+    o.Albedo = _Color.rgb;
+    o.Alpha = _Color.a;
 }
 ENDCG
 }
