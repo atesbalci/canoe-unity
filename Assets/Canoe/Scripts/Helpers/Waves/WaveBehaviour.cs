@@ -79,6 +79,8 @@ namespace Canoe.Helpers.Waves
         [BurstCompile]
         private struct WaveJob : IJobParallelFor
         {
+            public float3 Position;
+            
             public float Gap;
 
             public float Speed;
@@ -97,9 +99,9 @@ namespace Canoe.Helpers.Waves
             
             public void Execute(int i)
             {
-                var loc = (((float3) Vertices[i]).xz / Size + new float2(0f, Time)) * NoiseSize;
+                float3 cur = (float3) Vertices[i] + Position;
+                var loc = (cur.xz / Size + new float2(0f, Time)) * NoiseSize;
                 var n = noise.cnoise(loc) * NoiseScale;
-                float3 cur = Vertices[i];
                 float3 vert = cur;
                 cur.y = (math.sin(vert.z * Period + Time * Speed) + math.sin(vert.z * Period * 0.4f + Time * Speed) + n) * WaveSize;
                 cur.z = vert.z + math.sin((vert.x + Time * Gap) * WrinkleFrequency) * WrinkleSize + math.sin((vert.z * math.sin(Time) + vert.x * math.cos(Time)) * Period * 0.4f + Time * Speed);
@@ -125,7 +127,8 @@ namespace Canoe.Helpers.Waves
                 Speed = Speed,
                 WaveSize = WaveSize,
                 WrinkleFrequency = WrinkleFrequency,
-                WrinkleSize = WrinkleSize
+                WrinkleSize = WrinkleSize,
+                Position = transform.position
             };
 
             job.Schedule(_vertices.Length, 1).Complete();
