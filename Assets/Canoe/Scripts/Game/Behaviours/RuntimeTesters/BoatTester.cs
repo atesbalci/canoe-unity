@@ -1,4 +1,3 @@
-using System;
 using Canoe.Game.Models;
 using UnityEngine;
 using Zenject;
@@ -20,8 +19,8 @@ namespace Canoe.Game.Behaviours.RuntimeTesters
 
         private void Start()
         {
-            _leftPlayer = _boat.AddPlayer();
-            _rightPlayer = _boat.AddPlayer();
+            _leftPlayer = _boat.AddPlayer(0);
+            _rightPlayer = _boat.AddPlayer(1);
         }
 
         private void Update()

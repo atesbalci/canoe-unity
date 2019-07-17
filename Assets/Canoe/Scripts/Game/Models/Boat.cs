@@ -24,9 +24,9 @@ namespace Canoe.Game.Models
             SampleDuration = sampleDuration;
         }
 
-        public Player AddPlayer()
+        public Player AddPlayer(int id)
         {
-            var retVal = new Player();
+            var retVal = new Player(id);
             var side = LeftPlayers.Count <= RightPlayers.Count ? CanoeSide.Left : CanoeSide.Right;
             (side == CanoeSide.Left ? LeftPlayers : RightPlayers).Add(retVal);
             retVal.OnRow += (timeStamp, backward) =>
