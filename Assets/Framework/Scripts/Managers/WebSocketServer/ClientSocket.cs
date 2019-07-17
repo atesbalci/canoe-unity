@@ -16,17 +16,19 @@ namespace Framework.Scripts.Managers.WebSocketServer
 
         protected override void OnOpen()
         {
-            _manager.OnPlayerConnect?.Invoke();
+            _manager.ClientSockets.Add(this);
+            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnPlayerConnect?.Invoke(this));
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            _manager.OnPlayerDisconnect?.Invoke();
+            _manager.ClientSockets.Remove(this);
+            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnPlayerDisconnect?.Invoke(this));
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
-            _manager.OnErrorOccur?.Invoke();
+            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnErrorOccur?.Invoke(this));
         }
 
         protected override void OnMessage(MessageEventArgs e)
@@ -34,7 +36,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
             if (e.IsPing) return;
 
             var message = JsonUtility.FromJson<Message>(e.Data);
-            _manager.OnMessageReceive?.Invoke(this, message.code, e.Data);
+            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnMessageReceive?.Invoke(this, message.code, e.Data));
         }
 
         public String GetId()
