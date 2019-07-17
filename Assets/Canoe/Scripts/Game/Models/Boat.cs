@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 
 namespace Canoe.Game.Models
 {
-    public class Canoe
+    public class Boat
     {
+        public event Action<CanoeSide, int, Player> OnPlayerAdded;
+        
         public IList<Player> LeftPlayers { get; }
         public IList<Player> RightPlayers { get; }
         public float SampleDuration { get; }
@@ -13,7 +16,7 @@ namespace Canoe.Game.Models
 
         private readonly LinkedList<RowEntry> _rowEntries;
 
-        public Canoe(float sampleDuration)
+        public Boat(float sampleDuration)
         {
             LeftPlayers = new List<Player>();
             RightPlayers = new List<Player>();
@@ -24,10 +27,10 @@ namespace Canoe.Game.Models
         public Player AddPlayer()
         {
             var retVal = new Player();
-            (LeftPlayers.Count <= RightPlayers.Count ? LeftPlayers : RightPlayers).Add(retVal);
+            var side = LeftPlayers.Count <= RightPlayers.Count ? CanoeSide.Left : CanoeSide.Right;
+            (side == CanoeSide.Left ? LeftPlayers : RightPlayers).Add(retVal);
             retVal.OnRow += (timeStamp, backward) =>
             {
-                var side = LeftPlayers.Contains(retVal) ? CanoeSide.Left : CanoeSide.Right;
                 var listCount = side == CanoeSide.Left ? LeftPlayers.Count : RightPlayers.Count;
                 _rowEntries.AddLast(new RowEntry
                 {
@@ -38,6 +41,8 @@ namespace Canoe.Game.Models
                 });
             };
 
+            OnPlayerAdded?.Invoke(side, (side == CanoeSide.Left ? LeftPlayers.Count : RightPlayers.Count) - 1, retVal);
+            
             return retVal;
         }
 

@@ -5,16 +5,23 @@ using Zenject;
 
 namespace Canoe.Game.Behaviours.RuntimeTesters
 {
-    public class CanoeTester : MonoBehaviour
+    public class BoatTester : MonoBehaviour
     {
         private Player _leftPlayer;
         private Player _rightPlayer;
+
+        private Boat _boat;
         
         [Inject]
-        public void Initilize(Models.Canoe canoe)
+        public void Initialize(Boat boat)
         {
-            _leftPlayer = canoe.AddPlayer();
-            _rightPlayer = canoe.AddPlayer();
+            _boat = boat;
+        }
+
+        private void Start()
+        {
+            _leftPlayer = _boat.AddPlayer();
+            _rightPlayer = _boat.AddPlayer();
         }
 
         private void Update()

@@ -1,3 +1,4 @@
+using Canoe.Game.Models;
 using Zenject;
 
 namespace Canoe.Injection
@@ -6,7 +7,7 @@ namespace Canoe.Injection
     {
         public override void InstallBindings()
         {
-            Container.BindInstance(new Game.Models.Canoe(1f));
+            Container.BindInstance(new Boat(1f));
         }
     }
 }
