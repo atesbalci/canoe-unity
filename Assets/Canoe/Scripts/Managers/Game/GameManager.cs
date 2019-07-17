@@ -32,16 +32,32 @@ namespace Canoe.Managers.Game
 
         public void RemoveUser(ClientSocket clientSocket)
         {
+            var position = FindUserPositionByClientSocket(clientSocket);
+            if (position == -1) return;
+
+            var user = Users[position];
+            Users[position] = null;
+            OnUserRemove?.Invoke(position, user);
+        }
+
+        public UserModel FindUserByClientSocket(ClientSocket clientSocket)
+        {
+            var i = FindUserPositionByClientSocket(clientSocket);
+            return i == -1 ? null : Users[i];
+        }
+
+        private int FindUserPositionByClientSocket(ClientSocket clientSocket)
+        {
             for (var i = 0; i < Users.Length; i++)
             {
                 var user = Users[i];
                 if (user != null && user.ClientSocket == clientSocket)
                 {
-                    Users[i] = null;
-                    OnUserRemove?.Invoke(i, user);
-                    break;
+                    return i;
                 }
             }
+
+            return -1;
         }
     }
 }

@@ -10,19 +10,17 @@ namespace Canoe.Screens.Lobby.Systems.MessageFactory
     public class MessageFactorySystem : BaseScreen<LobbyScreenResources>
     {
         public UnityAction<ClientSocket, ChangeAvatarMessage> OnChangeAvatarMessage;
-
-        protected override void Awake()
-        {
-            base.Awake();
-        }
-
+        public UnityAction<ClientSocket, ChangeStateMessage> OnChangeStateMessage;
+        
         public void Produce(ClientSocket socket, int code, string data)
         {
             switch (code)
             {
                 case ChangeAvatar:
-                    var message = JsonUtility.FromJson<ChangeAvatarMessage>(data);
-                    OnChangeAvatarMessage?.Invoke(socket, message);
+                    OnChangeAvatarMessage?.Invoke(socket, JsonUtility.FromJson<ChangeAvatarMessage>(data));
+                    break;
+                case ChangeState:
+                    OnChangeStateMessage?.Invoke(socket, JsonUtility.FromJson<ChangeStateMessage>(data));
                     break;
                 default:
                     Debug.Log("Unknown message");

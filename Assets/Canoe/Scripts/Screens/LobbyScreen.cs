@@ -32,7 +32,7 @@ namespace Canoe.Screens
             _poolManager = FindObjectOfType<PoolManager>();
             _wssManager = FindObjectOfType<WebSocketServerManager>();
             _gameManager = FindObjectOfType<GameManager>();
-            
+
             _wssManager.OnPlayerConnect += OnPlayerConnect;
             _wssManager.OnPlayerDisconnect += OnPlayerDisconnect;
             _wssManager.OnMessageReceive += OnMessageReceive;
@@ -43,6 +43,7 @@ namespace Canoe.Screens
             _uiSystem = FindObjectOfType<UISystem>();
 
             _messageFactorySystem.OnChangeAvatarMessage += OnChangeAvatarMessage;
+            _messageFactorySystem.OnChangeStateMessage += OnChangeStateMessage;
         }
 
         private void Start()
@@ -78,23 +79,35 @@ namespace Canoe.Screens
 
         private void OnMessageReceive(ClientSocket socket, int code, string data)
         {
-            Debug.Log("received");
             _messageFactorySystem.Produce(socket, code, data);
-        }
-
-        private void OnChangeAvatarMessage(ClientSocket socket, ChangeAvatarMessage message)
-        {
-            Debug.Log("change avatar");
         }
 
         private void OnUserAdd(int position, UserModel user)
         {
             _uiSystem.AddLobbyPlayerIntoPanel(position, user);
         }
-        
+
         private void OnUserRemove(int position, UserModel user)
         {
             _uiSystem.RemoveLobbyPlayerFromPanel(position, user);
+        }
+        
+        private void OnChangeAvatarMessage(ClientSocket clientSocket, ChangeAvatarMessage message)
+        {
+            var user = _gameManager.FindUserByClientSocket(clientSocket);
+            if (user == null) return;
+
+            user.AvatarId = message.avatarId;
+            _uiSystem.ChangeLobbyPlayerAvatar(user);
+        }
+        
+        private void OnChangeStateMessage(ClientSocket clientSocket, ChangeStateMessage message)
+        {
+            var user = _gameManager.FindUserByClientSocket(clientSocket);
+            if (user == null) return;
+
+            user.IsReady = message.isReady;
+            _uiSystem.ChangeLobbyPlayerState(user);
         }
     }
 }

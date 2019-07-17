@@ -6,6 +6,7 @@ namespace Canoe.Models
     {
         public ClientSocket ClientSocket { get; private set; }
         public int AvatarId { get; set; }
+        public bool IsReady { get; set; }
 
         public UserModel(ClientSocket clientSocket)
         {
