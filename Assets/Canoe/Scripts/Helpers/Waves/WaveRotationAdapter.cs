@@ -5,6 +5,7 @@ namespace Canoe.Helpers.Waves
     public class WaveRotationAdapter : MonoBehaviour
     {
         [SerializeField] private WaveBehaviour _waveBehaviour;
+        [SerializeField] private bool _syncHeight;
 
         private void Update()
         {
@@ -17,7 +18,13 @@ namespace Canoe.Helpers.Waves
             var h2 = _waveBehaviour.GetHeight(p2);
             p1.y = h1;
             p2.y = h2;
-            transform.forward = p2 - p1;
+            trans.forward = p2 - p1;
+            
+            if (_syncHeight)
+            {
+                pos.y = Mathf.Max(h1, h2);
+                trans.position = pos;
+            }
         }
     }
 }
