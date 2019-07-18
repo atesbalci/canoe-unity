@@ -24,6 +24,7 @@ namespace Canoe.Helpers.Waves
         public Vector2 NoiseMovementVector;
 
         private Vector3[] _vertices;
+        private Vector3[] _newVertices;
         
         // Mesh instance
         private Mesh _seaMesh;
@@ -38,6 +39,7 @@ namespace Canoe.Helpers.Waves
             _seaMesh = GenerateMesh(Dimensions, Gap);
             GetComponent<MeshFilter>().sharedMesh = _seaMesh;
             _vertices = _seaMesh.vertices.ToArray();
+            _newVertices = new Vector3[_vertices.Length];
         }
 
         private static Mesh GenerateMesh(Vector2Int dimensions, float gap)
@@ -150,7 +152,8 @@ namespace Canoe.Helpers.Waves
 
             job.Schedule(_vertices.Length, 1).Complete();
 
-            _seaMesh.vertices = job.VerticesCur.ToArray();
+            job.VerticesCur.CopyTo(_newVertices);
+            _seaMesh.vertices = _newVertices;
             
             vertices.Dispose();
             verticesCur.Dispose();
