@@ -98,7 +98,7 @@ namespace Canoe.Screens.Lobby.Systems.UI
 
         public void UpdateLobbyState(GameManager.LobbyState state)
         {
-            StopCoroutine(nameof(StartCounting));
+            StopAllCoroutines();
 
             _barcodeImage.enabled = state != Ready;
             _counterText.enabled = state == Ready;

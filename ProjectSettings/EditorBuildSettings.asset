@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/Canoe/Scenes/Lobby.unity
     guid: a352ad5351c634086bfb1db8c10ff2d9
   - enabled: 1
-    path: Assets/Canoe/Scenes/Game.unity
+    path: Assets/Canoe/Scenes/Game_.unity
     guid: 07e09dd09e4f941dfb8c5425414d15a0
   m_configObjects: {}

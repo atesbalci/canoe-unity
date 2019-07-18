@@ -18,6 +18,7 @@ namespace Canoe.Screens.Game
             base.Awake();
 
             _wssManager = FindObjectOfType<WebSocketServerManager>();
+            _wssManager.OnMessageReceive += OnMessageReceive;
 
             _messageFactorySystem = FindObjectOfType<MessageFactorySystem>();
 
@@ -26,7 +27,14 @@ namespace Canoe.Screens.Game
 
         private void OnDestroy()
         {
+            _wssManager.OnMessageReceive -= OnMessageReceive;
+            
             _messageFactorySystem.OnSwipeMessage -= OnSwipeMessage;
+        }
+        
+        private void OnMessageReceive(ClientSocket clientSocket, int code, string data)
+        {
+            _messageFactorySystem.Produce(clientSocket, code, data);
         }
 
         private void OnSwipeMessage(ClientSocket clientSocket, SwipeMessage message)
@@ -35,6 +43,8 @@ namespace Canoe.Screens.Game
             
             if (message.direction.Equals("up")) direction = Vector2.up;
             else if (message.direction.Equals("down")) direction = Vector2.down;
+            
+            Debug.Log(direction);
         }
     }
 }
