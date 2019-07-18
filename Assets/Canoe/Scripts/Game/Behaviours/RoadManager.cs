@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class RoadManager : MonoBehaviour
 {
     [SerializeField] private List<GameObject> prefabList; 
     private List<GameObject> roadList = new List<GameObject>(); 
@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        Debug.Log("Prefablist : " + prefabList.Count);
         for (int i = 0; i < prefabList.Count; i++)
         {
             roadList.Add(Instantiate(prefabList[i], new Vector3(0, 0, ROAD_LENGTH * i), Quaternion.identity));
@@ -27,6 +26,6 @@ public class GameManager : MonoBehaviour
             roadList[oldCameraPositionIndex % roadList.Count].transform.position = new Vector3(0, 0, roadList[(oldCameraPositionIndex + roadList.Count - 1) % roadList.Count].transform.position.z + ROAD_LENGTH);
         }
 
-        oldCameraPositionIndex = (int) Camera.main.transform.position.z / ROAD_LENGTH;
+        oldCameraPositionIndex = (int) UnityEngine.Camera.main.transform.position.z / ROAD_LENGTH;
     }
 }
