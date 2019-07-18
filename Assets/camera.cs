@@ -9,11 +9,6 @@ public class camera : MonoBehaviour
     private float multiplier = 1;
     private float direction = 0;
     private Vector3 movedPosition = new Vector3();
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -27,7 +22,7 @@ public class camera : MonoBehaviour
         var transformPosition = Camera.main.transform.position;
         movedPosition.x = transformPosition.x;
         movedPosition.y = transformPosition.y;
-        movedPosition.z = transformPosition.z + 0.05f;
+        movedPosition.z = transformPosition.z + 12f * Time.deltaTime;
         
         Camera.main.transform.position = movedPosition;
     }

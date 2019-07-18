@@ -21,6 +21,7 @@ namespace Canoe.Helpers.Waves
         public float WrinkleSize;
         public float NoiseSize;
         public float NoiseScale;
+        public Vector2 NoiseMovementVector;
 
         private Vector3[] _vertices;
         
@@ -90,6 +91,7 @@ namespace Canoe.Helpers.Waves
             public float WrinkleSize;
             public float NoiseSize;
             public float NoiseScale;
+            public float2 NoiseMovementVector;
 
             public int2 Size;
             public float Time;
@@ -99,18 +101,19 @@ namespace Canoe.Helpers.Waves
             
             public void Execute(int i)
             {
-                float3 cur = (float3) Vertices[i] + Position;
-                float2 location = cur.xz;
-                cur.y = GetHeight(location, Size, Time, NoiseSize, NoiseScale, Period, Speed, WaveSize);
-                cur.z = location.y + math.sin((location.x + Time * Gap) * WrinkleFrequency) * WrinkleSize +
-                        math.sin((location.y * math.sin(Time) + location.x * math.cos(Time)) * Period * 0.4f +
+                float3 cur = Vertices[i];
+                float2 location = cur.xz + Position.xz;
+                cur.y = GetHeight(location, Size, Time, NoiseSize, NoiseScale, Period, Speed, WaveSize, NoiseMovementVector);
+                cur.z = cur.z + math.sin((location.x + Time * Gap) * WrinkleFrequency) * WrinkleSize +
+                        math.sin((location.y / Size.y + location.x * math.cos(Time)) * Period * 0.4f +
                                  Time * Speed);
                 VerticesCur[i] = cur;
             }
 
-            public static float GetHeight(float2 location, int2 size, float time, float noiseSize, float noiseScale, float period, float speed, float waveSize)
+            public static float GetHeight(float2 location, int2 size, float time, float noiseSize, float noiseScale,
+                float period, float speed, float waveSize, float2 noiseVector)
             {
-                var noiseValue = noise.cnoise((location / size + new float2(0f, time)) * noiseSize) * noiseScale;
+                var noiseValue = noise.cnoise((location / size + noiseVector * time) * noiseSize) * noiseScale;
                 return (math.sin(location.y * period + time * speed) +
                         math.sin(location.y * period * 0.4f + time * speed) + noiseValue) * waveSize;
             }
@@ -118,8 +121,8 @@ namespace Canoe.Helpers.Waves
 
         public float GetHeight(Vector3 location)
         {
-            return WaveJob.GetHeight(new float2(location.x, location.z), new int2(Dimensions.x, Dimensions.y), Time.time, NoiseSize, NoiseScale,
-                Period, Speed, WaveSize);
+            return WaveJob.GetHeight(new float2(location.x, location.z), new int2(Dimensions.x, Dimensions.y),
+                Time.time, NoiseSize, NoiseScale, Period, Speed, WaveSize, NoiseMovementVector);
         }
 
         private void Update()
@@ -141,7 +144,8 @@ namespace Canoe.Helpers.Waves
                 WaveSize = WaveSize,
                 WrinkleFrequency = WrinkleFrequency,
                 WrinkleSize = WrinkleSize,
-                Position = transform.position
+                Position = transform.position,
+                NoiseMovementVector = NoiseMovementVector
             };
 
             job.Schedule(_vertices.Length, 1).Complete();

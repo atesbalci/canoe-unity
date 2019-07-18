@@ -7,6 +7,14 @@ namespace Canoe.Helpers.Waves
         [SerializeField] private WaveBehaviour _waveBehaviour;
         [SerializeField] private bool _syncHeight;
 
+        private void Start()
+        {
+            if (_waveBehaviour == null)
+            {
+                _waveBehaviour = FindObjectOfType<WaveBehaviour>();
+            }
+        }
+
         private void Update()
         {
             var trans = transform;

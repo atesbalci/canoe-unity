@@ -6,10 +6,10 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private List<GameObject> prefabList; 
     private List<GameObject> roadList = new List<GameObject>(); 
-    private const int ROAD_LENGTH = 164;
+    private const int ROAD_LENGTH = 164 * 4;
     private int oldCameraPositionIndex;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         Debug.Log("Prefablist : " + prefabList.Count);
         for (int i = 0; i < prefabList.Count; i++)
