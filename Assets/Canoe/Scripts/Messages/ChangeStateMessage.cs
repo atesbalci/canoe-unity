@@ -1,6 +1,6 @@
 using Framework.Scripts.Managers.WebSocketServer;
 
-namespace Canoe.Screens.Lobby.Systems.MessageFactory.Messages
+namespace Canoe.Messages
 {
     public class ChangeStateMessage : Message
     {

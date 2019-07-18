@@ -1,9 +1,9 @@
-using Canoe.Screens.Lobby.Systems.MessageFactory.Messages;
+using Canoe.Messages;
 using Framework.Scripts;
 using Framework.Scripts.Managers.WebSocketServer;
 using UnityEngine;
 using UnityEngine.Events;
-using static Canoe.Screens.Lobby.Systems.MessageFactory.MessageCodes;
+using static Canoe.Messages.MessageCodes;
 
 namespace Canoe.Screens.Lobby.Systems.MessageFactory
 {
