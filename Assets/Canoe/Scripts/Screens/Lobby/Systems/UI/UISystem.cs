@@ -38,7 +38,7 @@ namespace Canoe.Screens.Lobby.Systems.UI
             _counterText = GameObject.Find("CounterText").GetComponent<TextMeshProUGUI>();
             _infoText = GameObject.Find("InfoText").GetComponent<TextMeshProUGUI>();
 
-            var lobbyTransform = GameObject.Find("Lobby").transform;
+            var lobbyTransform = GameObject.Find("Panels").transform;
             _panelTransforms = new RectTransform[2]
             {
                 lobbyTransform.GetChild(0).GetComponent<RectTransform>(),
@@ -98,7 +98,7 @@ namespace Canoe.Screens.Lobby.Systems.UI
 
         public void UpdateLobbyState(GameManager.LobbyState state)
         {
-            StopCoroutine(nameof(StartCounting));
+            StopAllCoroutines();
 
             _barcodeImage.enabled = state != Ready;
             _counterText.enabled = state == Ready;

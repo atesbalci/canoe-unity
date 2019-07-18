@@ -1,8 +1,8 @@
 using System.Linq;
 using Canoe.Managers.Game;
+using Canoe.Messages;
 using Canoe.Models;
 using Canoe.Screens.Lobby.Systems.MessageFactory;
-using Canoe.Screens.Lobby.Systems.MessageFactory.Messages;
 using Canoe.Screens.Lobby.Systems.UI;
 using Framework.Scripts;
 using Framework.Scripts.Managers.Pool;
