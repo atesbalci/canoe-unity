@@ -1,7 +1,4 @@
 using System.Linq;
-using System.Threading;
-using Canoe.Components;
-using Canoe.Managers;
 using Canoe.Managers.Game;
 using Canoe.Models;
 using Canoe.Screens.Lobby.Systems.MessageFactory;
@@ -12,9 +9,10 @@ using Framework.Scripts.Managers.Pool;
 using Framework.Scripts.Managers.WebSocketServer;
 using Framework.Scripts.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ZXing;
 
-namespace Canoe.Screens
+namespace Canoe.Screens.Lobby
 {
     public class LobbyScreen : BaseScreen<LobbyScreenResources>
     {
@@ -44,6 +42,7 @@ namespace Canoe.Screens
 
             _messageFactorySystem.OnChangeAvatarMessage += OnChangeAvatarMessage;
             _messageFactorySystem.OnChangeStateMessage += OnChangeStateMessage;
+            _uiSystem.OnCountingFinish += OnCountingFinish;
         }
 
         private void Start()
@@ -51,11 +50,20 @@ namespace Canoe.Screens
             _wssManager.Start();
 
             SetQrCode();
+            _uiSystem.UpdateLobbyState(_gameManager.State);
         }
 
         private void OnDestroy()
         {
-            _wssManager.Stop();
+            _wssManager.OnPlayerConnect -= OnPlayerConnect;
+            _wssManager.OnPlayerDisconnect -= OnPlayerDisconnect;
+            _wssManager.OnMessageReceive -= OnMessageReceive;
+            _gameManager.OnUserAdd -= OnUserAdd;
+            _gameManager.OnUserRemove -= OnUserRemove;
+            
+            _messageFactorySystem.OnChangeAvatarMessage -= OnChangeAvatarMessage;
+            _messageFactorySystem.OnChangeStateMessage -= OnChangeStateMessage;
+            _uiSystem.OnCountingFinish -= OnCountingFinish;
         }
 
         private void SetQrCode()
@@ -85,11 +93,13 @@ namespace Canoe.Screens
         private void OnUserAdd(int position, UserModel user)
         {
             _uiSystem.AddLobbyPlayerIntoPanel(position, user);
+            _uiSystem.UpdateLobbyState(_gameManager.State);
         }
 
         private void OnUserRemove(int position, UserModel user)
         {
             _uiSystem.RemoveLobbyPlayerFromPanel(position, user);
+            _uiSystem.UpdateLobbyState(_gameManager.State);
         }
         
         private void OnChangeAvatarMessage(ClientSocket clientSocket, ChangeAvatarMessage message)
@@ -108,6 +118,14 @@ namespace Canoe.Screens
 
             user.IsReady = message.isReady;
             _uiSystem.ChangeLobbyPlayerState(user);
+            
+            _gameManager.UpdateLobbyState();
+            _uiSystem.UpdateLobbyState(_gameManager.State);
+        }
+        
+        private void OnCountingFinish()
+        {
+            SceneManager.LoadScene(ScreenCodes.Game);
         }
     }
 }

@@ -1,7 +1,7 @@
 using Framework.Scripts;
 using UnityEngine;
 
-namespace Canoe.Screens
+namespace Canoe.Screens.Lobby
 {
     public class LobbyScreenResources : BaseScreenResources
     {

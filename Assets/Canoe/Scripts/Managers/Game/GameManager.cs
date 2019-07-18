@@ -1,16 +1,26 @@
+using System.Linq;
 using Canoe.Models;
 using Framework.Scripts;
 using Framework.Scripts.Managers.WebSocketServer;
 using Framework.Scripts.Utils;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Canoe.Managers.Game
 {
     public class GameManager : BaseManager
     {
+        public enum LobbyState
+        {
+            NotReady,
+            NotEnoughPlayers,
+            Ready,
+        }
+
         public UnityAction<int, UserModel> OnUserAdd;
         public UnityAction<int, UserModel> OnUserRemove;
 
+        public LobbyState State { get; private set; }
         public UserModel[] Users { get; private set; }
 
         protected override void Awake()
@@ -22,11 +32,12 @@ namespace Canoe.Managers.Game
 
         public void AddUser(ClientSocket clientSocket)
         {
-            var i = Users.GetFirstAvailablePosition();
+            var i = Users.GetFirstNullPosition();
             if (i == -1) return;
 
             var user = new UserModel(clientSocket);
             Users[i] = user;
+            UpdateLobbyState();
             OnUserAdd?.Invoke(i, user);
         }
 
@@ -37,6 +48,7 @@ namespace Canoe.Managers.Game
 
             var user = Users[position];
             Users[position] = null;
+            UpdateLobbyState();
             OnUserRemove?.Invoke(position, user);
         }
 
@@ -58,6 +70,27 @@ namespace Canoe.Managers.Game
             }
 
             return -1;
+        }
+
+        public void UpdateLobbyState()
+        {
+            State = LobbyState.Ready;
+            
+            if (Users.CountWithoutNull() < 4)
+            {
+                State = LobbyState.NotEnoughPlayers;
+            }
+            else
+            {
+                foreach (var user in Users)
+                {
+                    if (user != null && !user.IsReady)
+                    {
+                        State = LobbyState.NotReady;
+                        break;
+                    }
+                }
+            }
         }
     }
 }

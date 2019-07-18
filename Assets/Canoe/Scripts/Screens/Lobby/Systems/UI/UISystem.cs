@@ -1,19 +1,27 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using Canoe.Components;
+using Canoe.Managers.Game;
 using Canoe.Models;
 using Framework.Scripts;
 using Framework.Scripts.Managers.Pool;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
+using static Canoe.Managers.Game.GameManager.LobbyState;
 
 namespace Canoe.Screens.Lobby.Systems.UI
 {
     public class UISystem : BaseScreenSystem<LobbyScreenResources>
     {
+        public UnityAction OnCountingFinish;
+
         private PoolManager _poolManager;
 
         private RawImage _barcodeImage;
+        private TextMeshProUGUI _counterText;
+        private TextMeshProUGUI _infoText;
 
         private RectTransform[] _panelTransforms;
         private Dictionary<UserModel, LobbyPlayer> lobbyPlayersByUser;
@@ -25,6 +33,9 @@ namespace Canoe.Screens.Lobby.Systems.UI
             _poolManager = FindObjectOfType<PoolManager>();
 
             _barcodeImage = GameObject.Find("BarcodeImage").GetComponent<RawImage>();
+            _counterText = GameObject.Find("CounterText").GetComponent<TextMeshProUGUI>();
+            _infoText = GameObject.Find("InfoText").GetComponent<TextMeshProUGUI>();
+
             var lobbyTransform = GameObject.Find("Lobby").transform;
             _panelTransforms = new RectTransform[2]
             {
@@ -81,6 +92,40 @@ namespace Canoe.Screens.Lobby.Systems.UI
             if (lobbyPlayersByUser.TryGetValue(user, out var lobbyPlayer) == false) return;
 
             lobbyPlayer.SetState(user.IsReady);
+        }
+
+        public void UpdateLobbyState(GameManager.LobbyState state)
+        {
+            StopCoroutine(nameof(StartCounting));
+
+            _barcodeImage.enabled = state != Ready;
+            _counterText.enabled = state == Ready;
+
+            switch (state)
+            {
+                case NotReady:
+                    break;
+                case NotEnoughPlayers:
+                    break;
+                case Ready:
+                    StopCoroutine(nameof(StartCounting));
+                    StartCoroutine(StartCounting());
+                    break;
+            }
+        }
+
+        private IEnumerator StartCounting()
+        {
+            _counterText.SetText("5");
+            for (int i = 5; i >= 0; i--)
+            {
+                _counterText.SetText(i.ToString());
+                yield return new WaitForSeconds(1);
+            }
+
+            yield return null;
+
+            OnCountingFinish?.Invoke();
         }
     }
 }
