@@ -126,6 +126,19 @@ namespace Canoe.Screens.Lobby
         private void OnCountingFinish()
         {
             SceneManager.LoadScene(ScreenCodes.Game);
+            SendStartGameMessageToAllUsers();
+        }
+
+        private void SendStartGameMessageToAllUsers()
+        {
+            foreach (var user in _gameManager.Users)
+            {
+                if (user != null)
+                {
+                    Debug.Log("not null");
+                    user?.ClientSocket.SendMessage(new StartGameMessage());
+                }
+            }
         }
     }
 }

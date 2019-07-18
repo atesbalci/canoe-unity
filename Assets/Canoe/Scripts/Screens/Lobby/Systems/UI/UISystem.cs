@@ -18,6 +18,7 @@ namespace Canoe.Screens.Lobby.Systems.UI
         public UnityAction OnCountingFinish;
 
         private PoolManager _poolManager;
+        private GameManager _gameManager;
 
         private RawImage _barcodeImage;
         private TextMeshProUGUI _counterText;
@@ -31,6 +32,7 @@ namespace Canoe.Screens.Lobby.Systems.UI
             base.Awake();
 
             _poolManager = FindObjectOfType<PoolManager>();
+            _gameManager = FindObjectOfType<GameManager>();
 
             _barcodeImage = GameObject.Find("BarcodeImage").GetComponent<RawImage>();
             _counterText = GameObject.Find("CounterText").GetComponent<TextMeshProUGUI>();
@@ -116,8 +118,11 @@ namespace Canoe.Screens.Lobby.Systems.UI
 
         private IEnumerator StartCounting()
         {
-            _counterText.SetText("5");
-            for (int i = 5; i >= 0; i--)
+            var delay = _gameManager.GameConfig.StartGameDelay;
+
+            _counterText.SetText(delay.ToString());
+            
+            for (var i = delay; i >= 0; i--)
             {
                 _counterText.SetText(i.ToString());
                 yield return new WaitForSeconds(1);

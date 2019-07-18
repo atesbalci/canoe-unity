@@ -46,6 +46,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
 
         public void SendMessage(Message message)
         {
+            Send(JsonUtility.ToJson(message));
         }
     }
 }

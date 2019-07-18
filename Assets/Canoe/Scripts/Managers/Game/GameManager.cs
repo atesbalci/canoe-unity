@@ -1,4 +1,5 @@
-using System.Linq;
+using System;
+using Canoe.Managers.Game.Configs;
 using Canoe.Models;
 using Framework.Scripts;
 using Framework.Scripts.Managers.WebSocketServer;
@@ -20,6 +21,7 @@ namespace Canoe.Managers.Game
         public UnityAction<int, UserModel> OnUserAdd;
         public UnityAction<int, UserModel> OnUserRemove;
 
+        public IGameConfig GameConfig { get; private set; }
         public LobbyState State { get; private set; }
         public UserModel[] Users { get; private set; }
 
@@ -27,6 +29,7 @@ namespace Canoe.Managers.Game
         {
             base.Awake();
 
+            GameConfig = Application.isEditor ? (IGameConfig) new DevelopmentGameConfig() : new ProductionGameConfig();
             Users = new UserModel[8];
         }
 
@@ -75,8 +78,8 @@ namespace Canoe.Managers.Game
         public void UpdateLobbyState()
         {
             State = LobbyState.Ready;
-            
-            if (Users.CountWithoutNull() < 4)
+
+            if (Users.CountWithoutNull() < GameConfig.MinPlayersToStart)
             {
                 State = LobbyState.NotEnoughPlayers;
             }
