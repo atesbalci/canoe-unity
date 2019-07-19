@@ -159,6 +159,7 @@ MonoBehaviour:
   _row: {fileID: 756535758510152752}
   _arrow: {fileID: 2273078273259649215}
   _arrowPivot: {fileID: 5798273080118299490}
+  _rowRenderer: {fileID: 756535758150153750}
 --- !u!212 &3553756543160600629
 SpriteRenderer:
   m_ObjectHideFlags: 0

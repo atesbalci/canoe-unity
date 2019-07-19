@@ -1,4 +1,3 @@
-using System;
 using Canoe.Game.Models;
 using Canoe.Game.Views.Data;
 using DG.Tweening;
@@ -16,27 +15,27 @@ namespace Canoe.Game.Views
         private const float SpriteJumpDuration = 0.05f;
         private const float SpriteJumpRevertDuration = 0.25f;
         private const float ArrowFadeDuration = 1f;
-
-        private static readonly Color[] Colors =
-            {Color.red, Color.green, Color.blue, Color.yellow, Color.magenta, Color.cyan};
         
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private Transform _spritePivot;
         [SerializeField] private Transform _row;
         [SerializeField] private SpriteRenderer _arrow;
         [SerializeField] private Transform _arrowPivot;
+        [SerializeField] private Renderer _rowRenderer;
 
         private Player _player;
         private State _state;
         private float _currentRowAngle;
         private PlayerViewData _playerViewData;
         private Tween _spriteJumpTween;
+        private Color _defaultRowColor;
 
         [Inject]
         public void Initialize(PlayerViewData playerViewData)
         {
             _playerViewData = playerViewData;
             _arrow.color = new Color(1f, 1f, 1f, 0f);
+            _defaultRowColor = _rowRenderer.sharedMaterial.color;
         }
 
         public void Bind(Player player)
@@ -44,6 +43,7 @@ namespace Canoe.Game.Views
             if (_player != null)
             {
                 _player.OnRow -= OnRow;
+                _player.OnActivenessChanged -= OnActivenessChanged;
             }
             
             _player = player;
@@ -55,6 +55,7 @@ namespace Canoe.Game.Views
 
             _spriteRenderer.sprite = _playerViewData.GetPlayerSprite(_player.Id);
             _player.OnRow += OnRow;
+            _player.OnActivenessChanged += OnActivenessChanged;
             gameObject.SetActive(true);
             _state.Time = -StateTimeoutDuration;
         }
@@ -101,6 +102,14 @@ namespace Canoe.Game.Views
                 .Join(_arrowPivot.DOScale(Vector3.one, SpriteJumpDuration))
                 .Append(_spritePivot.DOScale(Vector3.one, SpriteJumpRevertDuration))
                 .Append(_arrow.DOFade(0f, ArrowFadeDuration));
+        }
+
+        private void OnActivenessChanged(bool active)
+        {
+            _spriteRenderer.color = new Color(1f, 1f, 1f, active ? 1f : 0.25f);
+            _rowRenderer.material.color = active
+                ? _defaultRowColor
+                : new Color(_defaultRowColor.r, _defaultRowColor.g, _defaultRowColor.b, 0.15f);
         }
 
         private void OnDisable()

@@ -69,6 +69,8 @@ namespace Canoe.Screens.Game
 
             user.UpdateClientSocketForReconnect(clientSocket);
             clientSocket.SendMessage(new StartGameMessage());
+
+            _playersByUser[user].Active = true;
         }
 
         private void OnPlayerDisconnect(ClientSocket clientSocket)
@@ -77,6 +79,8 @@ namespace Canoe.Screens.Game
             if (user == null) return;
             
             Debug.Log("player: disconnected");
+            
+            _playersByUser[user].Active = false;
         }
 
         private void OnMessageReceive(ClientSocket clientSocket, int code, string data)
