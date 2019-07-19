@@ -15,6 +15,7 @@ namespace Canoe.Game.Views
         private const float SpriteJumpScale = 1.5f;
         private const float SpriteJumpDuration = 0.05f;
         private const float SpriteJumpRevertDuration = 0.25f;
+        private const float ArrowFadeDuration = 1f;
 
         private static readonly Color[] Colors =
             {Color.red, Color.green, Color.blue, Color.yellow, Color.magenta, Color.cyan};
@@ -22,6 +23,8 @@ namespace Canoe.Game.Views
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private Transform _spritePivot;
         [SerializeField] private Transform _row;
+        [SerializeField] private SpriteRenderer _arrow;
+        [SerializeField] private Transform _arrowPivot;
 
         private Player _player;
         private State _state;
@@ -33,6 +36,7 @@ namespace Canoe.Game.Views
         public void Initialize(PlayerViewData playerViewData)
         {
             _playerViewData = playerViewData;
+            _arrow.color = new Color(1f, 1f, 1f, 0f);
         }
 
         public void Bind(Player player)
@@ -88,9 +92,15 @@ namespace Canoe.Game.Views
             _state.Backward = backward;
             _spriteJumpTween.Kill();
             _spritePivot.localScale = Vector3.one;
+            _arrowPivot.localScale = SpriteJumpScale * Vector3.one;
+            _arrow.color = new Color(1f, 1f, 1f, 0f);
+            _arrow.flipY = backward;
             _spriteJumpTween = DOTween.Sequence()
                 .Append(_spritePivot.DOScale(Vector3.one * SpriteJumpScale, SpriteJumpDuration))
-                .Append(_spritePivot.DOScale(Vector3.one, SpriteJumpRevertDuration));
+                .Join(_arrow.DOFade(1f, SpriteJumpDuration))
+                .Join(_arrowPivot.DOScale(Vector3.one, SpriteJumpDuration))
+                .Append(_spritePivot.DOScale(Vector3.one, SpriteJumpRevertDuration))
+                .Append(_arrow.DOFade(0f, ArrowFadeDuration));
         }
 
         private void OnDisable()
