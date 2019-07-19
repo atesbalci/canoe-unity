@@ -60,6 +60,18 @@ namespace Canoe.Managers.Game
             var i = FindUserPositionByClientSocket(clientSocket);
             return i == -1 ? null : Users[i];
         }
+        
+        public UserModel FindUserByDeviceId(string deviceId)
+        {
+            foreach (var user in Users)
+            {
+                if (user.ClientSocket.DeviceId.Equals(deviceId))
+                {
+                    return user;
+                }
+            }
+            return null;
+        }
 
         private int FindUserPositionByClientSocket(ClientSocket clientSocket)
         {

@@ -1092,6 +1092,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b33b4742c444c8aa613ae206b495f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _boatBehaviour: {fileID: 689562782}
   _playerSprites:
   - {fileID: 21300000, guid: e63a06d3a664c47b9901914b021c0baa, type: 3}
   - {fileID: 21300000, guid: a101cd2340cb4465eb4a0715ad3028b5, type: 3}

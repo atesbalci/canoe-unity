@@ -73,15 +73,13 @@ namespace Canoe.Screens.Lobby
             _uiSystem.ChangeBarcodeImage(texture);
         }
 
-        private void OnPlayerConnect(ClientSocket clientSocket)
+        private void OnPlayerConnect(ClientSocket clientSocket, bool isReconnect)
         {
-            Debug.Log("user connected");
             _gameManager.AddUser(clientSocket);
         }
 
         private void OnPlayerDisconnect(ClientSocket clientSocket)
         {
-            Debug.Log("user disconnected");
             _gameManager.RemoveUser(clientSocket);
         }
 
@@ -133,11 +131,7 @@ namespace Canoe.Screens.Lobby
         {
             foreach (var user in _gameManager.Users)
             {
-                if (user != null)
-                {
-                    Debug.Log("not null");
-                    user?.ClientSocket.SendMessage(new StartGameMessage());
-                }
+                user?.ClientSocket.SendMessage(new StartGameMessage());
             }
         }
     }
