@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 362b461e0873c4fcdbc4c84cdf2c6177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Dimensions: {x: 44, y: 200}
+  Dimensions: {x: 43, y: 170}
   Gap: 4
   Speed: -4
   Period: 0.2
