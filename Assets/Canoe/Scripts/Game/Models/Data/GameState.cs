@@ -5,9 +5,12 @@ namespace Canoe.Game.Models.Data
 {
     public class GameState
     {
-        private const float TimeLimit = 90f;
-        private const float PointsPerUnit = 10f;
+        private const float TimeLimit = 5f;
+        private const float PointsPerUnit = 0.1f;
 
+        public event Action OnGameOver;
+        
+        private bool _isSent;
         private double _scoreRaw;
 
         public long Score => (long) _scoreRaw;
@@ -26,6 +29,12 @@ namespace Canoe.Game.Models.Data
             if (!TimeIsUp)
             {
                 _scoreRaw = math.max(_scoreRaw, distance * PointsPerUnit);
+            }
+
+            if (!_isSent && TimeIsUp)
+            {
+                _isSent = true;
+                OnGameOver?.Invoke();
             }
         }
     }
