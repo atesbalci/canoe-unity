@@ -28,7 +28,7 @@ public class RoadManager : MonoBehaviour
         {
             gameEndView.SetActive(true);
             gameEndView.transform.Find("scoreValue").GetComponent<TextMeshProUGUI>().SetText(_gameState.Score.ToString());
-            DOVirtual.DelayedCall(2, () => { SceneManager.LoadScene(ScreenCodes.Lobby); }, false);
+            DOVirtual.DelayedCall(10, () => { SceneManager.LoadScene(ScreenCodes.Lobby); }, false);
         };
     }
     

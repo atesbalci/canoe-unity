@@ -5,7 +5,7 @@ namespace Canoe.Game.Models.Data
 {
     public class GameState
     {
-        private const float TimeLimit = 5f;
+        private const float TimeLimit = 90f;
         private const float PointsPerUnit = 0.1f;
 
         public event Action OnGameOver;

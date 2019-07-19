@@ -1699,7 +1699,6 @@ GameObject:
   - component: {fileID: 689562777}
   - component: {fileID: 689562782}
   - component: {fileID: 689562779}
-  - component: {fileID: 689562780}
   m_Layer: 0
   m_Name: Canoe
   m_TagString: Untagged
@@ -1759,18 +1758,6 @@ MonoBehaviour:
   - {fileID: 20312182}
   - {fileID: 756535758279594393}
   - {fileID: 335716565}
---- !u!114 &689562780
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 689562776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57201749c5e3416f8da1bc341edd02c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &689562781
 Transform:
   m_ObjectHideFlags: 0
