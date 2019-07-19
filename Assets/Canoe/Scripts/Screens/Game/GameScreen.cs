@@ -33,6 +33,8 @@ namespace Canoe.Screens.Game
 
             _wssManager = FindObjectOfType<WebSocketServerManager>();
             _gameManager = FindObjectOfType<GameManager>();
+            _wssManager.OnPlayerConnect += OnPlayerConnect;
+            _wssManager.OnPlayerDisconnect += OnPlayerDisconnect;
             _wssManager.OnMessageReceive += OnMessageReceive;
 
             _messageFactorySystem = FindObjectOfType<MessageFactorySystem>();
@@ -51,11 +53,32 @@ namespace Canoe.Screens.Game
 
         private void OnDestroy()
         {
+            _wssManager.OnPlayerConnect -= OnPlayerConnect;
+            _wssManager.OnPlayerDisconnect -= OnPlayerDisconnect;
             _wssManager.OnMessageReceive -= OnMessageReceive;
-            
+
             _messageFactorySystem.OnSwipeMessage -= OnSwipeMessage;
         }
-        
+
+        private void OnPlayerConnect(ClientSocket clientSocket, bool isReconnect)
+        {
+            if (!isReconnect) return;
+
+            var user = _gameManager.FindUserByDeviceId(clientSocket.DeviceId);
+            if (user == null) return;
+
+            user.UpdateClientSocketForReconnect(clientSocket);
+            clientSocket.SendMessage(new StartGameMessage());
+        }
+
+        private void OnPlayerDisconnect(ClientSocket clientSocket)
+        {
+            var user = _gameManager.FindUserByClientSocket(clientSocket);
+            if (user == null) return;
+            
+            Debug.Log("player: disconnected");
+        }
+
         private void OnMessageReceive(ClientSocket clientSocket, int code, string data)
         {
             _messageFactorySystem.Produce(clientSocket, code, data);
@@ -64,10 +87,10 @@ namespace Canoe.Screens.Game
         private void OnSwipeMessage(ClientSocket clientSocket, SwipeMessage message)
         {
             var direction = Vector2.zero;
-            
+
             if (message.direction.Equals("up")) direction = Vector2.up;
             else if (message.direction.Equals("down")) direction = Vector2.down;
-
+            
             var user = _gameManager.FindUserByClientSocket(clientSocket);
             _playersByUser[user].Row(Time.time, direction == Vector2.down);
         }

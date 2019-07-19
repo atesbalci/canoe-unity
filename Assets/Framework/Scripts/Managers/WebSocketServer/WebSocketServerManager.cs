@@ -11,7 +11,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
 {
     public class WebSocketServerManager : BaseManager
     {
-        public UnityAction<ClientSocket> OnPlayerConnect;
+        public UnityAction<ClientSocket, bool> OnPlayerConnect;
         public UnityAction<ClientSocket> OnPlayerDisconnect;
         public UnityAction<ClientSocket> OnErrorOccur;
         public UnityAction<ClientSocket, int, String> OnMessageReceive;
@@ -20,6 +20,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
 
         private WebSocketSharp.Server.WebSocketServer _wsServer;
         public List<ClientSocket> ClientSockets { get; private set; }
+        public HashSet<string> DeviceIds { get; private set; }
 
         protected override void Awake()
         {
@@ -34,6 +35,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
             _wsServer.AddWebSocketService("/", () => new ClientSocket(this));
 
             ClientSockets = new List<ClientSocket>();
+            DeviceIds = new HashSet<string>();
         }
 
         public void Start()

@@ -7,6 +7,7 @@ namespace Framework.Scripts.Managers.WebSocketServer
 {
     public class ClientSocket : WebSocketBehavior
     {
+        public string DeviceId { get; private set; }
         private readonly WebSocketServerManager _manager;
 
         public ClientSocket(WebSocketServerManager manager)
@@ -16,8 +17,12 @@ namespace Framework.Scripts.Managers.WebSocketServer
 
         protected override void OnOpen()
         {
+            DeviceId = QueryString.Get("device_id");
+            var isReconnect = _manager.DeviceIds.Contains(DeviceId);
+            if (!isReconnect) _manager.DeviceIds.Add(DeviceId);
+            
             _manager.ClientSockets.Add(this);
-            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnPlayerConnect?.Invoke(this));
+            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnPlayerConnect?.Invoke(this, isReconnect));
         }
 
         protected override void OnClose(CloseEventArgs e)
@@ -36,7 +41,8 @@ namespace Framework.Scripts.Managers.WebSocketServer
             if (e.IsPing) return;
 
             var message = JsonUtility.FromJson<Message>(e.Data);
-            UnityMainThreadDispatcher.Instance().Enqueue(() => _manager.OnMessageReceive?.Invoke(this, message.code, e.Data));
+            UnityMainThreadDispatcher.Instance()
+                .Enqueue(() => _manager.OnMessageReceive?.Invoke(this, message.code, e.Data));
         }
 
         public String GetId()
