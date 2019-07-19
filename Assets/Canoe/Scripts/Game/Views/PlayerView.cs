@@ -1,5 +1,9 @@
+using System;
 using Canoe.Game.Models;
+using Canoe.Game.Views.Data;
+using DG.Tweening;
 using UnityEngine;
+using Zenject;
 
 namespace Canoe.Game.Views
 {
@@ -8,16 +12,32 @@ namespace Canoe.Game.Views
         private const float StateTimeoutDuration = 0.25f;
         private const float RevertSpeed = 200f;
         private const float RowSpeed = 1000f;
+        private const float SpriteJumpScale = 1.5f;
+        private const float SpriteJumpDuration = 0.05f;
+        private const float SpriteJumpRevertDuration = 0.25f;
+        private const float ArrowFadeDuration = 1f;
 
         private static readonly Color[] Colors =
             {Color.red, Color.green, Color.blue, Color.yellow, Color.magenta, Color.cyan};
         
-        [SerializeField] private Renderer _model;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
+        [SerializeField] private Transform _spritePivot;
         [SerializeField] private Transform _row;
+        [SerializeField] private SpriteRenderer _arrow;
+        [SerializeField] private Transform _arrowPivot;
 
         private Player _player;
         private State _state;
-        [SerializeField] private float _currentAngle;
+        private float _currentRowAngle;
+        private PlayerViewData _playerViewData;
+        private Tween _spriteJumpTween;
+
+        [Inject]
+        public void Initialize(PlayerViewData playerViewData)
+        {
+            _playerViewData = playerViewData;
+            _arrow.color = new Color(1f, 1f, 1f, 0f);
+        }
 
         public void Bind(Player player)
         {
@@ -33,7 +53,7 @@ namespace Canoe.Game.Views
                 return;
             }
 
-            _model.material.color = Colors[_player.Id];
+            _spriteRenderer.sprite = _playerViewData.GetPlayerSprite(_player.Id);
             _player.OnRow += OnRow;
             gameObject.SetActive(true);
             _state.Time = -StateTimeoutDuration;
@@ -45,31 +65,47 @@ namespace Canoe.Game.Views
             
             if (Time.time - _state.Time > StateTimeoutDuration)
             {
-                var target = (_currentAngle > (fullAngle * 0.5f)) ? (fullAngle + 0.001f) : 0f;
-                _currentAngle = Mathf.MoveTowards(_currentAngle, target, RevertSpeed * Time.deltaTime);
+                var target = (_currentRowAngle > (fullAngle * 0.5f)) ? (fullAngle + 0.001f) : 0f;
+                _currentRowAngle = Mathf.MoveTowards(_currentRowAngle, target, RevertSpeed * Time.deltaTime);
             }
             else
             {
-                _currentAngle += RowSpeed * (_state.Backward ? -1f : 1f) * Time.deltaTime;
+                _currentRowAngle += RowSpeed * (_state.Backward ? -1f : 1f) * Time.deltaTime;
             }
 
             #region Snap angle back in to between 0 and 360
 
-            while (_currentAngle < -0.001f)
+            while (_currentRowAngle < -0.001f)
             {
-                _currentAngle += fullAngle;
+                _currentRowAngle += fullAngle;
             }
-            _currentAngle -= Mathf.Floor(_currentAngle / fullAngle) * fullAngle;
+            _currentRowAngle -= Mathf.Floor(_currentRowAngle / fullAngle) * fullAngle;
 
             #endregion
             
-            _row.localEulerAngles = new Vector3(_currentAngle, 0f, 0f);
+            _row.localEulerAngles = new Vector3(_currentRowAngle, 0f, 0f);
         }
 
         private void OnRow(float time, bool backward)
         {
             _state.Time = time;
             _state.Backward = backward;
+            _spriteJumpTween.Kill();
+            _spritePivot.localScale = Vector3.one;
+            _arrowPivot.localScale = SpriteJumpScale * Vector3.one;
+            _arrow.color = new Color(1f, 1f, 1f, 0f);
+            _arrow.flipY = backward;
+            _spriteJumpTween = DOTween.Sequence()
+                .Append(_spritePivot.DOScale(Vector3.one * SpriteJumpScale, SpriteJumpDuration))
+                .Join(_arrow.DOFade(1f, SpriteJumpDuration))
+                .Join(_arrowPivot.DOScale(Vector3.one, SpriteJumpDuration))
+                .Append(_spritePivot.DOScale(Vector3.one, SpriteJumpRevertDuration))
+                .Append(_arrow.DOFade(0f, ArrowFadeDuration));
+        }
+
+        private void OnDisable()
+        {
+            _spriteJumpTween.Kill(true);
         }
 
         private struct State

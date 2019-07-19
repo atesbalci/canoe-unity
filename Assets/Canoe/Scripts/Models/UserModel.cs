@@ -12,5 +12,10 @@ namespace Canoe.Models
         {
             ClientSocket = clientSocket;
         }
+
+        public void UpdateClientSocketForReconnect(ClientSocket clientSocket)
+        {
+            ClientSocket = clientSocket;
+        }
     }
 }
