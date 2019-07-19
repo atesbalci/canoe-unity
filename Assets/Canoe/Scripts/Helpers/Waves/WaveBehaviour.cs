@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -21,8 +20,11 @@ namespace Canoe.Helpers.Waves
         public float WrinkleSize;
         public float NoiseSize;
         public float NoiseScale;
+        public Vector2 NoiseMovementVector;
 
-        private Vector3[] _vertices;
+        private NativeArray<Vector3> _vertices;
+        private NativeArray<Vector3> _newVerticesJobArray;
+        private Vector3[] _newVertices;
         
         // Mesh instance
         private Mesh _seaMesh;
@@ -36,7 +38,9 @@ namespace Canoe.Helpers.Waves
         {
             _seaMesh = GenerateMesh(Dimensions, Gap);
             GetComponent<MeshFilter>().sharedMesh = _seaMesh;
-            _vertices = _seaMesh.vertices.ToArray();
+            _vertices = new NativeArray<Vector3>(_seaMesh.vertices, Allocator.Persistent);
+            _newVerticesJobArray = new NativeArray<Vector3>(_seaMesh.vertices.Length, Allocator.Persistent);
+            _newVertices = new Vector3[_vertices.Length];
         }
 
         private static Mesh GenerateMesh(Vector2Int dimensions, float gap)
@@ -79,6 +83,8 @@ namespace Canoe.Helpers.Waves
         [BurstCompile]
         private struct WaveJob : IJobParallelFor
         {
+            public float3 Position;
+            
             public float Gap;
 
             public float Speed;
@@ -88,6 +94,7 @@ namespace Canoe.Helpers.Waves
             public float WrinkleSize;
             public float NoiseSize;
             public float NoiseScale;
+            public float2 NoiseMovementVector;
 
             public int2 Size;
             public float Time;
@@ -97,45 +104,63 @@ namespace Canoe.Helpers.Waves
             
             public void Execute(int i)
             {
-                var loc = (((float3) Vertices[i]).xz / Size + new float2(0f, Time)) * NoiseSize;
-                var n = noise.cnoise(loc) * NoiseScale;
                 float3 cur = Vertices[i];
-                float3 vert = cur;
-                cur.y = (math.sin(vert.z * Period + Time * Speed) + math.sin(vert.z * Period * 0.4f + Time * Speed) + n) * WaveSize;
-                cur.z = vert.z + math.sin((vert.x + Time * Gap) * WrinkleFrequency) * WrinkleSize + math.sin((vert.z * math.sin(Time) + vert.x * math.cos(Time)) * Period * 0.4f + Time * Speed);
+                float2 location = cur.xz + Position.xz;
+                cur.y = GetHeight(location, Size, Time, NoiseSize, NoiseScale, Period, Speed, WaveSize, NoiseMovementVector);
+                cur.z = cur.z + math.sin((location.x + Time * Gap) * WrinkleFrequency) * WrinkleSize +
+                        math.sin((location.y / Size.y + location.x * math.cos(Time)) * Period * 0.4f +
+                                 Time * Speed);
                 VerticesCur[i] = cur;
             }
+
+            public static float GetHeight(float2 location, int2 size, float time, float noiseSize, float noiseScale,
+                float period, float speed, float waveSize, float2 noiseVector)
+            {
+                var noiseValue = noise.cnoise((location / size + noiseVector * time) * noiseSize) * noiseScale;
+                return (math.sin(location.y * period + time * speed) +
+                        math.sin(location.y * period * 0.4f + time * speed) + noiseValue) * waveSize;
+            }
+        }
+
+        public float GetHeight(Vector3 location)
+        {
+            return WaveJob.GetHeight(new float2(location.x, location.z), new int2(Dimensions.x, Dimensions.y),
+                Time.time, NoiseSize, NoiseScale, Period, Speed, WaveSize, NoiseMovementVector);
         }
 
         private void Update()
         {
-            var vertices = new NativeArray<Vector3>(_vertices, Allocator.Persistent);
-            var verticesCur = new NativeArray<Vector3>(_vertices.Length, Allocator.Persistent);
-            
             var job = new WaveJob
             {
                 Size = new int2(Dimensions.x, Dimensions.y),
                 Time = Time.time,
-                Vertices = vertices,
+                Vertices = _vertices,
                 NoiseScale = NoiseScale,
                 NoiseSize = NoiseSize,
-                VerticesCur = verticesCur,
+                VerticesCur = _newVerticesJobArray,
                 Gap = Gap,
                 Period = Period,
                 Speed = Speed,
                 WaveSize = WaveSize,
                 WrinkleFrequency = WrinkleFrequency,
-                WrinkleSize = WrinkleSize
+                WrinkleSize = WrinkleSize,
+                Position = transform.position,
+                NoiseMovementVector = NoiseMovementVector
             };
 
             job.Schedule(_vertices.Length, 1).Complete();
 
-            _seaMesh.vertices = job.VerticesCur.ToArray();
+            job.VerticesCur.CopyTo(_newVertices);
+            _seaMesh.vertices = _newVertices;
             
-            vertices.Dispose();
-            verticesCur.Dispose();
             // Makes the lighting better :D
             _seaMesh.RecalculateNormals();
+        }
+
+        private void OnDestroy()
+        {
+            _vertices.Dispose();
+            _newVerticesJobArray.Dispose();
         }
     }
 }
