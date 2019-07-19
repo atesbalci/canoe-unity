@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -23,7 +22,8 @@ namespace Canoe.Helpers.Waves
         public float NoiseScale;
         public Vector2 NoiseMovementVector;
 
-        private Vector3[] _vertices;
+        private NativeArray<Vector3> _vertices;
+        private NativeArray<Vector3> _newVerticesJobArray;
         private Vector3[] _newVertices;
         
         // Mesh instance
@@ -38,7 +38,8 @@ namespace Canoe.Helpers.Waves
         {
             _seaMesh = GenerateMesh(Dimensions, Gap);
             GetComponent<MeshFilter>().sharedMesh = _seaMesh;
-            _vertices = _seaMesh.vertices.ToArray();
+            _vertices = new NativeArray<Vector3>(_seaMesh.vertices, Allocator.Persistent);
+            _newVerticesJobArray = new NativeArray<Vector3>(_seaMesh.vertices.Length, Allocator.Persistent);
             _newVertices = new Vector3[_vertices.Length];
         }
 
@@ -129,17 +130,14 @@ namespace Canoe.Helpers.Waves
 
         private void Update()
         {
-            var vertices = new NativeArray<Vector3>(_vertices, Allocator.Persistent);
-            var verticesCur = new NativeArray<Vector3>(_vertices.Length, Allocator.Persistent);
-            
             var job = new WaveJob
             {
                 Size = new int2(Dimensions.x, Dimensions.y),
                 Time = Time.time,
-                Vertices = vertices,
+                Vertices = _vertices,
                 NoiseScale = NoiseScale,
                 NoiseSize = NoiseSize,
-                VerticesCur = verticesCur,
+                VerticesCur = _newVerticesJobArray,
                 Gap = Gap,
                 Period = Period,
                 Speed = Speed,
@@ -155,10 +153,14 @@ namespace Canoe.Helpers.Waves
             job.VerticesCur.CopyTo(_newVertices);
             _seaMesh.vertices = _newVertices;
             
-            vertices.Dispose();
-            verticesCur.Dispose();
             // Makes the lighting better :D
             _seaMesh.RecalculateNormals();
+        }
+
+        private void OnDestroy()
+        {
+            _vertices.Dispose();
+            _newVerticesJobArray.Dispose();
         }
     }
 }
