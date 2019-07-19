@@ -73,7 +73,7 @@ namespace Canoe.Screens.Lobby
             _uiSystem.ChangeBarcodeImage(texture);
         }
 
-        private void OnPlayerConnect(ClientSocket clientSocket)
+        private void OnPlayerConnect(ClientSocket clientSocket, bool isReconnect)
         {
             Debug.Log("user connected");
             _gameManager.AddUser(clientSocket);
