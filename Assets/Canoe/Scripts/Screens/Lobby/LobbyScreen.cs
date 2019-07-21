@@ -129,9 +129,13 @@ namespace Canoe.Screens.Lobby
 
         private void SendStartGameMessageToAllUsers()
         {
-            foreach (var user in _gameManager.Users)
+            var avatars = _gameManager.GetAvatarList();
+            
+            for (var i = 0; i < _gameManager.Users.Length; i++)
             {
-                user?.ClientSocket.SendMessage(new StartGameMessage());
+                var user = _gameManager.Users[i];
+                var message = new StartGameMessage(i, avatars);
+                user?.ClientSocket.SendMessage(message);
             }
         }
     }

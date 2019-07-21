@@ -66,20 +66,21 @@ namespace Canoe.Screens.Game
 
             var user = _gameManager.FindUserByDeviceId(clientSocket.DeviceId);
             if (user == null) return;
-
+            
             user.UpdateClientSocketForReconnect(clientSocket);
-            clientSocket.SendMessage(new StartGameMessage());
-
             _playersByUser[user].Active = true;
+            
+            var position = _gameManager.FindUserPositionByClientSocket(user.ClientSocket);
+            clientSocket.SendMessage(new StartGameMessage(position, _gameManager.GetAvatarList()));
         }
 
         private void OnPlayerDisconnect(ClientSocket clientSocket)
         {
             var user = _gameManager.FindUserByClientSocket(clientSocket);
             if (user == null) return;
-            
+
             Debug.Log("player: disconnected");
-            
+
             _playersByUser[user].Active = false;
         }
 
@@ -94,7 +95,7 @@ namespace Canoe.Screens.Game
 
             if (message.direction.Equals("up")) direction = Vector2.up;
             else if (message.direction.Equals("down")) direction = Vector2.down;
-            
+
             var user = _gameManager.FindUserByClientSocket(clientSocket);
             _playersByUser[user].Row(Time.time, direction == Vector2.down);
         }

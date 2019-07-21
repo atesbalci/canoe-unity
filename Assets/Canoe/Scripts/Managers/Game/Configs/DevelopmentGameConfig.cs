@@ -4,6 +4,6 @@ namespace Canoe.Managers.Game.Configs
     {
         public int MinPlayersToStart => 2;
 
-        public int StartGameDelay => 5;
+        public int StartGameDelay => 1;
     }
 }

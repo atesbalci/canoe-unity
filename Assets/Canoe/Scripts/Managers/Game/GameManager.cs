@@ -1,4 +1,4 @@
-using System;
+using Boo.Lang;
 using Canoe.Managers.Game.Configs;
 using Canoe.Models;
 using Framework.Scripts;
@@ -60,7 +60,7 @@ namespace Canoe.Managers.Game
             var i = FindUserPositionByClientSocket(clientSocket);
             return i == -1 ? null : Users[i];
         }
-        
+
         public UserModel FindUserByDeviceId(string deviceId)
         {
             foreach (var user in Users)
@@ -70,10 +70,11 @@ namespace Canoe.Managers.Game
                     return user;
                 }
             }
+
             return null;
         }
 
-        private int FindUserPositionByClientSocket(ClientSocket clientSocket)
+        public int FindUserPositionByClientSocket(ClientSocket clientSocket)
         {
             for (var i = 0; i < Users.Length; i++)
             {
@@ -106,6 +107,19 @@ namespace Canoe.Managers.Game
                     }
                 }
             }
+        }
+
+        public List<int> GetAvatarList()
+        {
+            var avatars = new List<int>();
+            
+            foreach (var user in Users)
+            {
+                if (user == null) continue;
+                avatars.Add(user.AvatarId);
+            }
+
+            return avatars;
         }
     }
 }
