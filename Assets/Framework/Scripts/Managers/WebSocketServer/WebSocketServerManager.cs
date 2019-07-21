@@ -29,6 +29,11 @@ namespace Framework.Scripts.Managers.WebSocketServer
             InitializeServer();
         }
 
+        private void OnDestroy()
+        {
+            Stop();
+        }
+
         private void InitializeServer()
         {
             _wsServer = new WebSocketSharp.Server.WebSocketServer($"ws://0.0.0.0:{port}");
