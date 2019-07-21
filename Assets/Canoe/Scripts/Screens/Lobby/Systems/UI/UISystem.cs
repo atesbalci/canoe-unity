@@ -110,7 +110,6 @@ namespace Canoe.Screens.Lobby.Systems.UI
                 case NotEnoughPlayers:
                     break;
                 case Ready:
-                    StopCoroutine(nameof(StartCounting));
                     StartCoroutine(StartCounting());
                     break;
             }
