@@ -57,5 +57,10 @@ namespace Framework.Scripts.Managers.WebSocketServer
         {
             Send(JsonUtility.ToJson(message));
         }
+
+        public void CloseSocket()
+        {
+            Close();
+        }
     }
 }

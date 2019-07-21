@@ -62,7 +62,12 @@ namespace Canoe.Screens.Game
 
         private void OnPlayerConnect(ClientSocket clientSocket, bool isReconnect)
         {
-            if (!isReconnect) return;
+            if (!isReconnect)
+            {
+                _wssManager.DeviceIds.Remove(clientSocket.DeviceId);
+                clientSocket.CloseSocket();
+                return;
+            }
 
             var user = _gameManager.FindUserByDeviceId(clientSocket.DeviceId);
             if (user == null) return;
