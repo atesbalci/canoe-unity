@@ -5,12 +5,9 @@ using Canoe.Models;
 using Canoe.Screens.Lobby.Systems.MessageFactory;
 using Canoe.Screens.Lobby.Systems.UI;
 using Framework.Scripts;
-using Framework.Scripts.Managers.Config;
 using Framework.Scripts.Managers.Pool;
 using Framework.Scripts.Managers.WebSocketServer;
 using Framework.Scripts.Utils;
-using UnityEditor.VersionControl;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using ZXing;
 
