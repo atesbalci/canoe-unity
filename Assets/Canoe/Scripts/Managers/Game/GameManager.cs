@@ -121,5 +121,19 @@ namespace Canoe.Managers.Game
 
             return avatars;
         }
+
+        public void Prepare()
+        {
+            State = LobbyState.NotReady;
+            
+            for (var i = 0; i < Users.Length; i++)
+            {
+                var user = Users[i];
+                if (user == null) continue;
+                
+                user.ClientSocket.CloseSocket();
+                Users[i] = null;
+            }
+        }
     }
 }

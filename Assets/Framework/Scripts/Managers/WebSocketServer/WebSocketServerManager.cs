@@ -45,6 +45,8 @@ namespace Framework.Scripts.Managers.WebSocketServer
 
         public void Start()
         {
+            ClientSockets.Clear();
+            DeviceIds.Clear();
             _wsServer?.Start();
         }
 
